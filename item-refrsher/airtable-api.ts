@@ -44,7 +44,10 @@ export default class AirtableAPI {
             },
             body: JSON.stringify({ records })
         });
-        return response.ok;
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`Airtable addRecords failed: ${response.status} ${err}`);
+        }
     }
 }
 

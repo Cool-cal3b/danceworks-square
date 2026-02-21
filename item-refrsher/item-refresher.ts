@@ -1,5 +1,5 @@
-import SquareAPI, { SquareItem } from './square-api';
-import AirtableAPI from './airtable-api';
+import SquareAPI, { SquareItem } from './square-api.js';
+import AirtableAPI from './airtable-api.js';
 
 const ITEM_TABLE_NAME = 'Items';
 
@@ -10,7 +10,7 @@ const LOCATION_NAMES = (process.env.SQUARE_LOCATION_NAMES ?? 'Provo,American For
     .filter(Boolean);
 
 export default class ItemRefresher {
-    async refreshItemTable() {
+    async refreshItemTable(): Promise<{ recordsCreated: number }> {
         const squareAPI = new SquareAPI();
         const airtableAPI = new AirtableAPI();
 
@@ -24,6 +24,7 @@ export default class ItemRefresher {
             const records = batch.map(item => this._squareItemToAirtableRecord(item));
             await airtableAPI.addRecords(ITEM_TABLE_NAME, records);
         }
+        return { recordsCreated: allItems.length };
     }
 
     private _squareItemToAirtableRecord(item: SquareItem) {
