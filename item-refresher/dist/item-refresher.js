@@ -11,14 +11,16 @@ export default class ItemRefresher {
         const squareAPI = new SquareAPI();
         const airtableAPI = new AirtableAPI();
         const allItems = await squareAPI.getAllItems();
-        await airtableAPI.deleteAllRecords(ITEM_TABLE_NAME);
-        // TODO: Consider upserting by SKU+variationId to avoid rate limits and preserve linked fields/formulas
-        const BATCH_SIZE = 10;
-        for (let i = 0; i < allItems.length; i += BATCH_SIZE) {
-            const batch = allItems.slice(i, i + BATCH_SIZE);
-            const records = batch.map(item => this._squareItemToAirtableRecord(item));
-            await airtableAPI.addRecords(ITEM_TABLE_NAME, records);
-        }
+        console.log(JSON.stringify(allItems, null, 2));
+        // We just want to test getting the items for now
+        // await airtableAPI.deleteAllRecords(ITEM_TABLE_NAME);
+        // const BATCH_SIZE = 10;
+        // for (let i = 0; i < allItems.length; i += BATCH_SIZE) {
+        //     const batch = allItems.slice(i, i + BATCH_SIZE);
+        //     const records = batch.map(item => this._squareItemToAirtableRecord(item));
+        //     await airtableAPI.addRecords(ITEM_TABLE_NAME, records);
+        // }
+        // return { recordsCreated: allItems.length };
         return { recordsCreated: allItems.length };
     }
     _squareItemToAirtableRecord(item) {

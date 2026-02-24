@@ -5,7 +5,9 @@
  * Inventory: POST /v2/inventory/counts/batch-retrieve
  */
 
-const SQUARE_BASE_URL = process.env.SQUARE_BASE_URL ?? 'https://connect.squareup.com';
+const SQUARE_BASE_URL_PROD = 'https://connect.squareup.com/v2';
+const SQUARE_BASE_URL_SANDBOX = 'https://connect.squareupsandbox.com/v2';
+const SQUARE_BASE_URL = process.env.ENVIRONMENT === 'test' ? SQUARE_BASE_URL_SANDBOX : SQUARE_BASE_URL_PROD;
 const SQUARE_API_VERSION = process.env.SQUARE_API_VERSION ?? '2026-01-22';
 
 /** Location names to match (e.g. "Provo", "American Fork"). Set via SQUARE_LOCATION_NAMES env (comma-separated). */
@@ -36,7 +38,7 @@ export default class SquareAPI {
     }
 
     private async _fetchLocations(): Promise<Map<string, string>> {
-        const data = await this._request<ListLocationsResponse>('/v2/locations');
+        const data = await this._request<ListLocationsResponse>('/locations');
         const locations = data.locations ?? [];
         const nameToId = new Map<string, string>();
         for (const loc of locations) {
@@ -69,7 +71,7 @@ export default class SquareAPI {
                 if (cursor) body.cursor = cursor;
 
                 const data = await this._request<BatchInventoryResponse>(
-                    '/v2/inventory/counts/batch-retrieve',
+                    '/inventory/counts/batch-retrieve',
                     { method: 'POST', body: JSON.stringify(body) }
                 );
 
@@ -97,7 +99,7 @@ export default class SquareAPI {
         const types = 'ITEM,ITEM_VARIATION,CATEGORY';
 
         do {
-            const url = new URL('/v2/catalog/list', SQUARE_BASE_URL);
+            const url = new URL('/catalog/list', SQUARE_BASE_URL);
             url.searchParams.set('types', types);
             if (cursor) url.searchParams.set('cursor', cursor);
 

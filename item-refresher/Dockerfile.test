@@ -1,0 +1,21 @@
+FROM node:20-slim AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-slim
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+
+# Make test script executable
+COPY run-test.sh ./run-test.sh
+RUN chmod +x ./run-test.sh
+
+ENV NODE_ENV=test
+EXPOSE 8080
+
+CMD ["./run-test.sh"]
